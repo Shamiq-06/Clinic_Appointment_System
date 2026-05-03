@@ -1,20 +1,46 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 import AnimatedPageWrapper from '../components/AnimatedPageWrapper'
 import Button from '../components/Button'
+import api, { getApiError } from '../api/axios'
+import { saveSession } from '../utils/auth'
 
 function Login() {
-  const [form, setForm] = useState({ email: '', password: '', role: 'Patient' })
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '', role: 'patient' })
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     setMessage('')
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return setError('Please enter a valid email address.')
     if (form.password.length < 6) return setError('Password must be at least 6 characters.')
-    setError('')
-    setMessage(`Welcome back, ${form.role}. This is a demo login success state.`)
+
+    try {
+      setError('')
+      setLoading(true)
+      const response = await api.post('/auth/login', {
+        email: form.email,
+        password: form.password,
+      })
+      const token = response?.data?.token
+      const user = response?.data?.user
+
+      if (!token || !user) {
+        throw new Error('Login response did not include a session token.')
+      }
+
+      saveSession({ token, user })
+      setMessage(response?.data?.message || 'Login successful.')
+      navigate(user?.role === 'admin' ? '/admin' : '/doctors')
+    } catch (apiError) {
+      setError(getApiError(apiError, 'Login failed. Please check your details.'))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -25,7 +51,7 @@ function Login() {
           Secure portal demo
         </span>
         <h1 className="mt-6 text-4xl font-bold text-slate-950 sm:text-5xl">Sign in to manage appointments with confidence.</h1>
-        <p className="mt-5 max-w-xl leading-8 text-slate-600">Patient and admin role selection is ready for future auth integration while staying fully frontend-only today.</p>
+        <p className="mt-5 max-w-xl leading-8 text-slate-600">Sign in with your clinic account to book appointments or manage daily operations.</p>
       </div>
       <form onSubmit={submit} className="glass-card rounded-2xl p-6 sm:p-8">
         <h2 className="text-2xl font-bold text-slate-950">Login</h2>
@@ -41,14 +67,14 @@ function Login() {
           <label>
             <span className="mb-2 block text-sm font-bold text-slate-700">Role</span>
             <select className="input-field" value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}>
-              <option>Patient</option>
-              <option>Admin</option>
+              <option value="patient">Patient</option>
+              <option value="admin">Admin</option>
             </select>
           </label>
         </div>
         {error && <p className="mt-5 rounded-2xl bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</p>}
         {message && <p className="mt-5 rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-700">{message}</p>}
-        <Button type="submit" className="mt-6 w-full">Login</Button>
+        <Button type="submit" className="mt-6 w-full" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</Button>
       </form>
     </AnimatedPageWrapper>
   )

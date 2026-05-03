@@ -1,18 +1,32 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BadgePlus, LockKeyhole, Mail, UserRound } from 'lucide-react'
 import AnimatedPageWrapper from '../components/AnimatedPageWrapper'
 import Button from '../components/Button'
+import api, { getApiError } from '../api/axios'
 
 function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'Patient' })
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'patient' })
   const [notice, setNotice] = useState({ type: '', text: '' })
+  const [loading, setLoading] = useState(false)
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     if (form.name.trim().length < 2) return setNotice({ type: 'error', text: 'Please enter your name.' })
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return setNotice({ type: 'error', text: 'Please enter a valid email.' })
     if (form.password.length < 6) return setNotice({ type: 'error', text: 'Password must be at least 6 characters.' })
-    setNotice({ type: 'success', text: `${form.role} account created in demo mode.` })
+
+    try {
+      setLoading(true)
+      const response = await api.post('/auth/register', form)
+      setNotice({ type: 'success', text: response?.data?.message || 'Account created successfully. Redirecting to login...' })
+      setTimeout(() => navigate('/login'), 900)
+    } catch (apiError) {
+      setNotice({ type: 'error', text: getApiError(apiError, 'Registration failed. Please try again.') })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -35,8 +49,8 @@ function Register() {
           <label>
             <span className="mb-2 block text-sm font-bold text-slate-700">Role</span>
             <select className="input-field" value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}>
-              <option>Patient</option>
-              <option>Admin</option>
+              <option value="patient">Patient</option>
+              <option value="admin">Admin</option>
             </select>
           </label>
         </div>
@@ -45,7 +59,7 @@ function Register() {
             {notice.text}
           </p>
         )}
-        <Button type="submit" className="mt-6 w-full">Register</Button>
+        <Button type="submit" className="mt-6 w-full" disabled={loading}>{loading ? 'Creating account...' : 'Register'}</Button>
       </form>
       <div>
         <span className="inline-flex items-center gap-2 rounded-2xl bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700">
@@ -53,7 +67,7 @@ function Register() {
           New clinic portal
         </span>
         <h2 className="mt-6 text-4xl font-bold text-slate-950 sm:text-5xl">Start with a clean role-based registration experience.</h2>
-        <p className="mt-5 max-w-xl leading-8 text-slate-600">The UI is ready for later authentication while preserving the requested dummy-data-only implementation.</p>
+        <p className="mt-5 max-w-xl leading-8 text-slate-600">Create a patient or admin account and continue through the connected clinic workflow.</p>
       </div>
     </AnimatedPageWrapper>
   )

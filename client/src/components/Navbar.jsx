@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import { CalendarDays, Menu, Stethoscope, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { CalendarDays, LogOut, Menu, Stethoscope, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Button from './Button'
+import { clearSession, getStoredToken, getStoredUser } from '../utils/auth'
 
 const links = [
   { label: 'Home', to: '/' },
@@ -11,9 +12,30 @@ const links = [
 ]
 
 function Navbar() {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [session, setSession] = useState({ token: getStoredToken(), user: getStoredUser() })
   const activeClass = ({ isActive }) =>
     `rounded-2xl px-4 py-2 text-sm font-semibold transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-white hover:text-slate-950'}`
+  const isLoggedIn = Boolean(session.token)
+  const userRole = session.user?.role
+  const visibleLinks = links.filter((link) => link.to !== '/admin' || userRole === 'admin')
+
+  useEffect(() => {
+    const syncSession = () => setSession({ token: getStoredToken(), user: getStoredUser() })
+    window.addEventListener('storage', syncSession)
+    window.addEventListener('authChanged', syncSession)
+    return () => {
+      window.removeEventListener('storage', syncSession)
+      window.removeEventListener('authChanged', syncSession)
+    }
+  }, [])
+
+  const logout = () => {
+    clearSession()
+    setOpen(false)
+    navigate('/login')
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/70 bg-white/72 backdrop-blur-xl">
@@ -29,7 +51,7 @@ function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
-          {links.map((link) => (
+          {visibleLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={activeClass}>
               {link.label}
             </NavLink>
@@ -37,7 +59,17 @@ function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button to="/login" variant="secondary" className="px-4 py-2.5">Login</Button>
+          {isLoggedIn ? (
+            <>
+              <span className="rounded-2xl bg-teal-50 px-4 py-2.5 text-sm font-bold capitalize text-teal-700">{userRole || 'user'}</span>
+              <Button variant="secondary" className="px-4 py-2.5" onClick={logout}><LogOut size={17} />Logout</Button>
+            </>
+          ) : (
+            <>
+              <Button to="/login" variant="secondary" className="px-4 py-2.5">Login</Button>
+              <Button to="/register" variant="secondary" className="px-4 py-2.5">Register</Button>
+            </>
+          )}
           <Button to="/doctors" className="px-4 py-2.5"><CalendarDays size={17} />Book</Button>
         </div>
 
@@ -57,12 +89,19 @@ function Navbar() {
           className="mx-4 mb-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl md:hidden"
         >
           <div className="grid gap-2">
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <NavLink key={link.to} to={link.to} onClick={() => setOpen(false)} className={activeClass}>
                 {link.label}
               </NavLink>
             ))}
-            <Button to="/login" variant="secondary" className="mt-2 w-full">Login</Button>
+            {isLoggedIn ? (
+              <Button variant="secondary" className="mt-2 w-full" onClick={logout}><LogOut size={17} />Logout</Button>
+            ) : (
+              <>
+                <Button to="/login" variant="secondary" className="mt-2 w-full">Login</Button>
+                <Button to="/register" variant="secondary" className="w-full">Register</Button>
+              </>
+            )}
             <Button to="/doctors" className="w-full">Book Appointment</Button>
           </div>
         </motion.div>
