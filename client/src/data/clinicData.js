@@ -1,0 +1,71 @@
+export const doctors = [
+  {
+    id: 'ava-silva',
+    name: 'Dr. Ava Silva',
+    specialty: 'Cardiology',
+    availability: 'Today, 2:00 PM - 6:00 PM',
+    experience: '12 years',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=700&q=80',
+    bio: 'Heart health specialist focused on preventive care, diagnostics, and long-term treatment plans.',
+  },
+  {
+    id: 'noah-bennett',
+    name: 'Dr. Noah Bennett',
+    specialty: 'Dermatology',
+    availability: 'Tomorrow, 9:00 AM - 1:00 PM',
+    experience: '9 years',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=700&q=80',
+    bio: 'Clinical dermatologist helping patients with skin conditions, cosmetic care, and follow-up wellness.',
+  },
+  {
+    id: 'mia-roberts',
+    name: 'Dr. Mia Roberts',
+    specialty: 'Pediatrics',
+    availability: 'Mon, Wed, Fri',
+    experience: '14 years',
+    rating: 5,
+    image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=700&q=80',
+    bio: 'Pediatric consultant known for calm family visits and proactive child development care.',
+  },
+  {
+    id: 'ethan-chen',
+    name: 'Dr. Ethan Chen',
+    specialty: 'Orthopedics',
+    availability: 'Today, 10:00 AM - 4:00 PM',
+    experience: '11 years',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=700&q=80',
+    bio: 'Orthopedic surgeon supporting sports injuries, joint pain, and recovery planning.',
+  },
+  {
+    id: 'laila-khan',
+    name: 'Dr. Laila Khan',
+    specialty: 'Neurology',
+    availability: 'Thu, 11:00 AM - 5:00 PM',
+    experience: '15 years',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=700&q=80',
+    bio: 'Neurologist focused on migraine care, nerve disorders, and patient-centered treatment journeys.',
+  },
+  {
+    id: 'oliver-hart',
+    name: 'Dr. Oliver Hart',
+    specialty: 'General Medicine',
+    availability: 'Daily, 8:00 AM - 12:00 PM',
+    experience: '8 years',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=700&q=80',
+    bio: 'Primary care physician for everyday concerns, preventive checks, and referral coordination.',
+  },
+]
+
+export const appointments = [
+  { id: 1, patient: 'Emma Wilson', doctor: 'Dr. Ava Silva', time: '09:30 AM', type: 'Cardiology review', status: 'approved' },
+  { id: 2, patient: 'Liam Carter', doctor: 'Dr. Mia Roberts', time: '10:15 AM', type: 'Child wellness', status: 'pending' },
+  { id: 3, patient: 'Sophia Reed', doctor: 'Dr. Ethan Chen', time: '12:00 PM', type: 'Knee follow-up', status: 'rejected' },
+  { id: 4, patient: 'James Miller', doctor: 'Dr. Laila Khan', time: '02:45 PM', type: 'Migraine consult', status: 'pending' },
+]
+
+export const timeSlots = ['09:00 AM', '10:30 AM', '12:00 PM', '02:00 PM', '03:30 PM', '05:00 PM']
